@@ -16,11 +16,22 @@ int main(int argc, char *argv[])
   {
     for (int i=1; i < argc; i++)
     {
-      int fd = open(argv[i], O_RDONLY);
+      int fd;
+
+      if ((fd = open(argv[i], O_RDONLY)) == -1)
+      {
+        perror("\nopen");
+        exit(EXIT_FAILURE);
+      }
 
       char buf[4096];
 
-      size_t size = read(fd, buf, sizeof(buf));
+      size_t size;
+      if ((size = read(fd, buf, sizeof(buf))) == -1)
+      {
+        perror("\nread");
+        exit(EXIT_FAILURE);
+      }
 
       buf[size] = '\0';
 
@@ -35,11 +46,15 @@ int main(int argc, char *argv[])
 
     char buf[4096];
 
-    size_t size =1;
+    size_t size = 1;
 
     while (size > 0) // reason: read returns 0 on EOF and -1 on error
     {
-      size = read(fd, buf, sizeof(buf));
+      if ((size = read(fd, buf, sizeof(buf)) == -1)
+      {
+        perror("\nread");
+        exit(EXIT_FAILURE);
+      }
   
       buf[size] = '\0';
 
