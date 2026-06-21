@@ -1,7 +1,7 @@
-// cat.c 
-// Author: jcolours 
+// cat.c
+// Author: jcolours
 // Date: 2026-06-12
-// Description: Simple remake of the basic cat unix tool using C, 
+// Description: Simple remake of the basic cat unix tool using C,
 // C libraries, and C sys calls to the kernel
 
 #include <stdlib.h>
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
       close(fd);
     }
   }
-  else 
+  else
   {
     int fd = 0;
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
         perror("\nread");
         exit(EXIT_FAILURE);
       }
-  
+
       buf[size] = '\0';
 
       printf("%s", buf);

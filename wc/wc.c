@@ -4,20 +4,23 @@
 // Description: building a wc clone from scratch utilizing system calls such
 // as read, close, and open.
 
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
+#include <ctype.h>
 
-int return_char_count(char *file);
-int return_word_count(char *file);
-int return_line_count(char *file);
+int return_char_count(size_t size, char *file);
+int return_word_count(size_t size, char prev, char *file);
+int return_line_count(size_t size, char *file);
 
 int main(int argc, char **argv)
 {
     int fd;
     size_t size = 1;
+    char prev;
 
     if (argc < 2)
     {
@@ -29,6 +32,8 @@ int main(int argc, char **argv)
         int word_count = 0;
         int line_count = 0;
 
+        prev = ' ';
+
         while (size > 0)
         {
             if ((size = read(fd, buf, sizeof(buf))) == -1)
@@ -39,9 +44,11 @@ int main(int argc, char **argv)
 
             buf[size] = '\0';
 
-            char_count += return_char_count(buf);
-            word_count += return_word_count(buf);
-            line_count += return_line_count(buf);
+            char_count += return_char_count(size, buf);
+            word_count += return_word_count(size, prev, buf);
+            line_count += return_line_count(size, buf);
+
+            prev = buf[size - 1];
         }
 
         printf("\n");
@@ -72,6 +79,8 @@ int main(int argc, char **argv)
             int word_count = 0;
             int line_count = 0;
 
+            prev = ' ';
+
             while (size > 0)
             {
                 if ((size = read(fd, buf, sizeof(buf))) == -1)
@@ -82,9 +91,11 @@ int main(int argc, char **argv)
 
                 buf[size] = '\0';
 
-                char_count += return_char_count(buf);
-                word_count += return_word_count(buf);
-                line_count += return_line_count(buf);
+                char_count += return_char_count(size, buf);
+                word_count += return_word_count(size, prev, buf);
+                line_count += return_line_count(size, buf);
+
+                prev = buf[size - 1];
             }
 
             printf("%d\t%d\t%d\t\t%s\n", line_count, word_count, char_count, argv[i]);
@@ -103,16 +114,16 @@ int main(int argc, char **argv)
 }
 
 // FIX: make for loop instead of while
-int return_char_count(char *file)
+int return_char_count(size_t size, char *file)
 {
-    char character = ' ';
     int count = 0;
 
-    while (1)
+    for (int i=0; i<size; i++)
     {
-        character = file[count];
-        if (character == '\0') break;
-        count++;
+        if (file[i] == '\0')
+            continue;
+        else
+            count++;
     }
 
     return count;
@@ -120,49 +131,55 @@ int return_char_count(char *file)
 
 // FIX: problems with delimiting and process
 // make for loop instead of while
-int return_word_count(char *file)
+int return_word_count(size_t size, char prev, char *file)
 {
-    char character = ' ';
-    int pos = 0;
     int count = 0;
-    int word = 0;
+    int is_word = 0;
 
-    while (1)
+    // while (1)
+    // {
+    //     character = file[pos];
+    //     if (character == '\0') break;
+    //     if (character != ' ' || character != '\t' || character != '\n')
+    //     {
+    //         word = 1;
+    //     }
+    //     else
+    //     {
+    //         word = 0;
+    //     }
+
+    //     if (word == 0) count++;
+
+    //     pos++;
+    // }
+
+    // count++; // counts last word before EOF
+
+    for (int i=0; i<size; i++)
     {
-        character = file[pos];
-        if (character == '\0') break;
-        if (character != ' ' || character != '\t' || character != '\n')
-        {
-            word = 1;
-        }
-        else
-        {
-            word = 0;
-        }
+        char last = (i == 0) ? prev : file[i-1];
 
-        if (word == 0) count++;
+        if (isalnum(file[i]) || ispunct(file[i])) is_word = 1;
+        else is_word = 0;
 
-        pos++;
+        if (!is_word)
+        {
+            if (isspace(file[i]) && !isspace(last)) count++;
+        }
     }
-
-    count++; // counts last word before EOF
 
     return count;
 }
 
 // FIX: Add size param and make for loop instead of while
-int return_line_count(char *file)
+int return_line_count(size_t size, char *file)
 {
-    char character = ' ';
-    int pos = 0;
     int count = 0;
 
-    while (1)
+    for (int i=0; i<size; i++)
     {
-        character = file[pos];
-        if (character == '\0') break;
-        if (character == '\n') count++;
-        pos++;
+        if (file[i] == '\n') count++;
     }
 
     return count;
