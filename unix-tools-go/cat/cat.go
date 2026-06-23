@@ -23,13 +23,14 @@ func main() {
 		}
 
 	} else {
+
+		buf := make([]byte, 4096)
+
 		for i := 1; i < len(os.Args); i++ {
 
 			file, err := os.Open(os.Args[i])
 
 			if err != nil { log.Fatal(err) }
-
-			buf := make([]byte, 4096)
 
 			for {
 				buf_size, err := file.Read(buf)
